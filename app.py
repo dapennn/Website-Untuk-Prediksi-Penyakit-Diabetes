@@ -118,8 +118,12 @@ def load_artifacts():
         with open('feature_names.pkl', 'rb') as f:
             feature_names = pickle.load(f)
         return model, feature_names
+    except FileNotFoundError:
+        st.error("Error: File model atau feature_names tidak ditemukan.")
+        st.info("Pastikan file 'diabetes_rf_model_0.9904.pkl' dan 'feature_names.pkl' ada di direktori yang sama dengan app.py.")
+        return None, None
     except Exception as e:
-        st.error(f"Error loading model: {e}")
+        st.error(f"Error saat memuat model: {e}")
         return None, None
 
 def create_sample_data():
@@ -203,9 +207,9 @@ def predict_with_random_forest(input_data, model, feature_names):
             elif feature == 'gender':
                 input_features.append(1 if input_data['gender'] == "Male" else 0)
             elif feature in ['polyuria', 'polydipsia', 'sudden_weight_loss', 'weakness', 
-                           'polyphagia', 'genital_thrush', 'visual_blurring', 'itching',
-                           'irritability', 'delayed_healing', 'partial_paresis', 
-                           'muscle_stiffness', 'alopecia']:
+                             'polyphagia', 'genital_thrush', 'visual_blurring', 'itching',
+                             'irritability', 'delayed_healing', 'partial_paresis', 
+                             'muscle_stiffness', 'alopecia']:
                 input_features.append(1 if input_data.get(feature, "No") == "Yes" else 0)
             else:
                 input_features.append(0)
@@ -278,7 +282,7 @@ def predict_diabetes_accurate(input_data):
         input_data['polyuria'],      # Sering BAK
         input_data['polydipsia'],    # Sering haus
         input_data['sudden_weight_loss'], # Penurunan BB
-        input_data['visual_blurring']     # Penglihatan kabur
+        input_data['visual_blurring']    # Penglihatan kabur
     ]
     
     # Gejala pendukung
@@ -405,7 +409,7 @@ def display_prediction_result(prediction, probability, input_data, model_type="R
             {probability[1]:.1%}
         </div>
         <p style="text-align: center; font-size: 1.2rem; margin-bottom: 1rem;">
-            Confidence: {max(probability):.1%}
+            Probabilitas Risiko Diabetes
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -586,11 +590,11 @@ def show_random_forest_info():
         st.markdown("### ⚙️ Hyperparameter Model")
         st.code("""
 # Parameter Random Forest kami:
-n_estimators = 100     # Jumlah tree
-max_depth = 10         # Kedalaman maksimal
-min_samples_split = 5  # Minimal sampel untuk split
-min_samples_leaf = 2   # Minimal sampel di leaf
-random_state = 42      # Reproducibility
+n_estimators = 100      # Jumlah tree
+max_depth = 10          # Kedalaman maksimal
+min_samples_split = 5   # Minimal sampel untuk split
+min_samples_leaf = 2    # Minimal sampel di leaf
+random_state = 42       # Reproducibility
         """)
         
         st.markdown("### 📊 Feature Importance Utama")
@@ -598,14 +602,14 @@ random_state = 42      # Reproducibility
         Fitur paling berpengaruh untuk prediksi diabetes:
         
         **🎯 Gejala Utama (Critical Symptoms):**
-        - **Polyuria** (Sering BAK) - 18.56%
-        - **Polydipsia** (Sering Haus) - 15.43%
-        - **Weight Loss** (Penurunan BB) - 3.77%
+        - **Polyuria** (Sering BAK)
+        - **Polydipsia** (Sering Haus)
+        - **Weight Loss** (Penurunan BB)
         - **Visual Blurring** (Penglihatan Kabur)
         
         **📊 Faktor Demografi:**
-        - **Age** (Usia) - 7.36%
-        - **Gender** (Jenis Kelamin) - 6.28%
+        - **Age** (Usia)
+        - **Gender** (Jenis Kelamin)
         """)
 
 def show_home_page():
@@ -711,8 +715,7 @@ def show_prediction_page(model, feature_names):
     st.warning("""
     ⚠️ **Disclaimer Medis Penting**: 
     
-    Hasil prediksi ini menggunakan machine learning Random Forest, namun **BUKAN pengganti diagnosis medis** 
-    dari dokter. Hasil ini hanya sebagai **screening tool awal** untuk membantu identifikasi risiko.
+    Hasil prediksi ini menggunakan machine learning Random Forest, namun **BUKAN pengganti diagnosis medis** dari dokter. Hasil ini hanya sebagai **screening tool awal** untuk membantu identifikasi risiko.
     
     **Untuk diagnosis pasti, WAJIB konsultasi dengan dokter dan pemeriksaan laboratorium (tes gula darah, HbA1c).**
     """)
@@ -750,35 +753,35 @@ def show_prediction_page(model, feature_names):
         with col1:
             st.markdown("**📢 Data Demografi**")
             age = st.number_input("Usia (Tahun)", min_value=1, max_value=120, value=40, 
-                                 help="Masukkan usia pasien dalam tahun", key="age")
+                                  help="Masukkan usia pasien dalam tahun", key="age")
             gender = st.selectbox("Jenis Kelamin", ["Female", "Male"], 
-                                 help="Pilih jenis kelamin pasien", key="gender")
+                                  help="Pilih jenis kelamin pasien", key="gender")
             
             st.markdown("---")
             st.markdown("**🎯 Gejala Utama Diabetes**")
             polyuria = st.selectbox("Sering Buang Air Kecil (Polyuria)", ["No", "Yes"], 
-                                   help="Apakah sering BAK terutama malam hari?", key="polyuria")
+                                      help="Apakah sering BAK terutama malam hari?", key="polyuria")
             polydipsia = st.selectbox("Sering Haus (Polydipsia)", ["No", "Yes"], 
-                                     help="Apakah sering merasa haus berlebihan?", key="polydipsia")
+                                        help="Apakah sering merasa haus berlebihan?", key="polydipsia")
             sudden_weight_loss = st.selectbox("Penurunan Berat Badan Mendadak", ["No", "Yes"], 
-                                             help="Apakah BB turun tanpa diet?", key="weight_loss")
+                                                help="Apakah BB turun tanpa diet?", key="weight_loss")
             visual_blurring = st.selectbox("Penglihatan Kabur", ["No", "Yes"], 
-                                          help="Apakah penglihatan sering kabur?", key="visual_blur")
+                                           help="Apakah penglihatan sering kabur?", key="visual_blur")
         
         with col2:
             st.markdown("**📊 Gejala Pendukung**")
             weakness = st.selectbox("Kelelahan/Lemas", ["No", "Yes"], 
-                                   help="Apakah mudah lelah?", key="weakness")
+                                      help="Apakah mudah lelah?", key="weakness")
             polyphagia = st.selectbox("Sering Lapar (Polyphagia)", ["No", "Yes"], 
-                                     help="Apakah sering merasa lapar?", key="polyphagia")
+                                        help="Apakah sering merasa lapar?", key="polyphagia")
             genital_thrush = st.selectbox("Infeksi Jamur Genital", ["No", "Yes"], 
-                                         help="Apakah ada infeksi jamur?", key="genital_thrush")
+                                            help="Apakah ada infeksi jamur?", key="genital_thrush")
             delayed_healing = st.selectbox("Luka Sulit Sembuh", ["No", "Yes"], 
-                                          help="Apakah luka lambat sembuh?", key="delayed_healing")
+                                             help="Apakah luka lambat sembuh?", key="delayed_healing")
             itching = st.selectbox("Gatal-gatal", ["No", "Yes"], 
-                                  help="Apakah sering gatal pada kulit?", key="itching")
+                                   help="Apakah sering gatal pada kulit?", key="itching")
             irritability = st.selectbox("Mudah Tersinggung", ["No", "Yes"], 
-                                       help="Apakah mudah marah/tersinggung?", key="irritability")
+                                          help="Apakah mudah marah/tersinggung?", key="irritability")
         
         # Submit button
         st.markdown("---")
@@ -833,7 +836,7 @@ def show_model_analysis():
     f1 = f1_score(y_test, y_pred, average='weighted')
     
     # Display metrics
-    st.success(f"✅ Model berhasil dilatih dengan {len(feature_names)} fitur")
+    st.success(f"✅ Model berhasil dilatih dengan {len(feature_names)} fitur pada data sampel")
     
     col1, col2, col3, col4 = st.columns(4)
     
@@ -862,8 +865,7 @@ def show_model_analysis():
         
         # Show top 10
         st.write("**Top 10 Most Important Features:**")
-        for idx, row in feature_importance_df.head(10).iterrows():
-            st.write(f"{row['Feature']}: **{row['Importance']:.4f}**")
+        st.dataframe(feature_importance_df.head(10))
         
         # Plot
         fig, ax = plt.subplots(figsize=(10, 8))
@@ -886,8 +888,8 @@ def show_model_analysis():
         
         fig, ax = plt.subplots(figsize=(8, 6))
         sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax, 
-                   cbar_kws={'label': 'Count'},
-                   annot_kws={'size': 16, 'weight': 'bold'})
+                      cbar_kws={'label': 'Count'},
+                      annot_kws={'size': 16, 'weight': 'bold'})
         ax.set_xlabel('Predicted Label', fontsize=12, fontweight='bold')
         ax.set_ylabel('True Label', fontsize=12, fontweight='bold')
         ax.set_title('Confusion Matrix', fontsize=14, fontweight='bold')
@@ -920,20 +922,20 @@ def show_model_analysis():
         **Random Forest Process:**
         
         1. **Bootstrap Sampling** 🎲
-           - Ambil sample random dari training data
-           - Setiap tree mendapat data berbeda
+            - Ambil sample random dari training data
+            - Setiap tree mendapat data berbeda
         
         2. **Build Multiple Trees** 🌲
-           - Bangun 100 decision trees
-           - Setiap tree independen
+            - Bangun 100 decision trees
+            - Setiap tree independen
         
         3. **Random Feature Selection** 🔀
-           - Pilih subset fitur untuk setiap split
-           - Meningkatkan diversity antar trees
+            - Pilih subset fitur untuk setiap split
+            - Meningkatkan diversity antar trees
         
         4. **Voting** 🗳️
-           - Setiap tree memberikan prediksi
-           - Final result: majority vote
+            - Setiap tree memberikan prediksi
+            - Final result: majority vote
         """)
     
     with col2:
@@ -994,19 +996,14 @@ def show_model_analysis():
     """)
 
 def main():
+    """Fungsi utama untuk menjalankan aplikasi Streamlit."""
     # Header utama
     st.markdown('<h1 class="main-header">🏥 DiabetesAI - Random Forest</h1>', unsafe_allow_html=True)
     st.markdown('<p class="sub-header">Sistem Prediksi Diabetes Menggunakan Algoritma Random Forest</p>', unsafe_allow_html=True)
     
-    # Load or train model
-    with st.spinner('🔮 Memuat model Random Forest...'):
-        model, feature_names = load_artifacts()
-        
-        # If no pre-trained model, train a new one
-        if model is None:
-            st.info("📄 Melatih model Random Forest baru...")
-            model, feature_names, accuracy, X_test, y_test, y_pred, y_pred_proba = train_random_forest_model()
-            st.success(f"✅ Model Random Forest berhasil dilatih dengan akurasi: {accuracy:.2%}")
+    # --- PERBAIKAN UTAMA DIMULAI DI SINI ---
+    # Memuat artefak model di awal
+    model, feature_names = load_artifacts()
     
     # Sidebar untuk navigasi
     st.sidebar.title("📍 Navigation")
@@ -1035,15 +1032,21 @@ def main():
     **STMIK Triguna Dharma**
     """)
     
-    # Navigation
+    # Logika navigasi halaman
     if app_mode == "🏠 Dashboard":
         show_home_page()
     elif app_mode == "🩺 Prediction":
-        show_prediction_page(model, feature_names)
+        # Hanya tampilkan halaman prediksi jika model berhasil dimuat
+        if model is not None and feature_names is not None:
+            show_prediction_page(model, feature_names)
+        else:
+            st.error("Model tidak dapat dimuat. Halaman prediksi tidak tersedia.")
+            st.warning("Mohon periksa kembali apakah file model .pkl sudah ada di folder yang benar.")
     elif app_mode == "🌲 Random Forest Info":
         show_random_forest_info()
     elif app_mode == "📊 Model Analysis":
         show_model_analysis()
+    # --- PERBAIKAN UTAMA SELESAI ---
 
 if __name__ == "__main__":
     main()
