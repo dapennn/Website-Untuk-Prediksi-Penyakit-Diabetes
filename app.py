@@ -292,7 +292,7 @@ def predict_diabetes_accurate(input_data):
         input_data['genital_thrush'],    # Infeksi jamur
         input_data['delayed_healing'],   # Luka sulit sembuh
         input_data['itching'],           # Gatal-gatal
-        input_data['irritability']       # Mudah marah
+        input_data['partial_paresis']    # Kelemahan Otot
     ]
     
     critical_yes = sum([1 for symptom in critical_symptoms if symptom == "Yes"])
@@ -352,7 +352,7 @@ def display_prediction_result(prediction, probability, input_data, model_type="R
         'Genital Thrush (Infeksi Jamur)': input_data['genital_thrush'],
         'Delayed Healing (Luka Lambat Sembuh)': input_data['delayed_healing'],
         'Itching (Gatal-gatal)': input_data['itching'],
-        'Irritability (Mudah Tersinggung)': input_data['irritability']
+        'Partial Paresis (Kelemahan Otot)': input_data['partial_paresis']
     }
     
     critical_yes = sum([1 for symptom in critical_symptoms.values() if symptom == "Yes"])
@@ -650,7 +650,7 @@ def show_home_page():
         
         st.write("**📊 Gejala Pendukung:**")
         st.write("• Kelelahan/Lemas, Sering Lapar, Infeksi Jamur")
-        st.write("• Luka Sulit Sembuh, Gatal-gatal, Mudah Tersinggung")
+        st.write("• Luka Sulit Sembuh, Gatal-gatal, Kelemahan Otot")
         
         st.markdown("### 🚀 Cara Menggunakan")
         
@@ -701,7 +701,6 @@ def show_home_page():
         - Penglihatan kabur
         - Luka yang lambat sembuh
         """)
-
 def show_prediction_page(model, feature_names):
     """Halaman prediksi dengan Random Forest"""
     st.markdown("""
@@ -741,7 +740,7 @@ def show_prediction_page(model, feature_names):
             - **Genital Thrush:** Infeksi jamur di area genital
             - **Delayed Healing:** Luka sulit sembuh
             - **Itching:** Gatal-gatal pada kulit
-            - **Irritability:** Mudah marah/tersinggung
+            - **Partial Paresis:** Kelemahan otot di sebagian tubuh
             """)
     
     # Form input data
@@ -780,8 +779,8 @@ def show_prediction_page(model, feature_names):
                                              help="Apakah luka lambat sembuh?", key="delayed_healing")
             itching = st.selectbox("Gatal-gatal", ["No", "Yes"], 
                                    help="Apakah sering gatal pada kulit?", key="itching")
-            irritability = st.selectbox("Mudah Tersinggung", ["No", "Yes"], 
-                                          help="Apakah mudah marah/tersinggung?", key="irritability")
+            partial_paresis = st.selectbox("Kelemahan Otot (Partial Paresis)", ["No", "Yes"], 
+                                             help="Apakah mengalami kelemahan otot di sebagian tubuh?", key="partial_paresis")
         
         # Submit button
         st.markdown("---")
@@ -801,9 +800,9 @@ def show_prediction_page(model, feature_names):
             'genital_thrush': genital_thrush,
             'visual_blurring': visual_blurring,
             'itching': itching,
-            'irritability': irritability,
+            'irritability': "No", # Diubah dari form, jadi kita set default 'No'
             'delayed_healing': delayed_healing,
-            'partial_paresis': "No",
+            'partial_paresis': partial_paresis, # Mengambil nilai dari form baru
             'muscle_stiffness': "No",
             'alopecia': "No"
         }
